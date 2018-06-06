@@ -15,6 +15,12 @@ class Configs(object):
 
         # @----------- control ------------------------
         parser.add_argument('--network_type', type=str, default='disan', help='network type')
+        parser.add_argument('--log_period', type=int, default=2000, help='save tf summary period')
+        parser.add_argument('--save_period', type=int, default=3000, help='')
+        parser.add_argument('--eval_period', type=int, default=500, help='evaluation period')
+        parser.add_argument('--load_model', type='bool', default=False, help='do not use')
+        parser.add_argument('--load_step', type=int, default=None, help='do not use')
+        parser.add_argument('--load_path', type=str, default=None, help='specify which pre-trained model to be load')
 
         # @----------- training ----------------------------
         parser.add_argument('--max_epoch', type=int, default=100, help='max epoch number')
@@ -47,12 +53,45 @@ class Configs(object):
                 exec('self.%s = self.args.%s' % (key,key))
 
         # ------------ name ---------------------------------
+        self.train_data_name = 'cikm_english_train_20180516.txt'
+        self.dev_data_name = 'cikm_spanish_train_20180516.txt'
+        self.test_data_name = 'cikm_test_a_20180516.txt'
+        self.unlabeled_data_name = 'cikm_unlabel_spanish_train_20180516.txt'
+        self.emb_es_name = 'wiki.es.vec'
+        self.emb_en_name = 'wiki.en.vec'
 
+        self.processed_name = 'processed' + '.pickle'
+
+        self.dict_name = 'dicts'
+
+        self.model_name = self.network_type
+        self.model_ckpt_name = 'modelfile.ckpt'
 
         # ------------ dir ----------------------------------
+        self.result_dir = self.mkdir(self.project_dir, 'result')
+        self.dict_dir = self.mkdir(self.result_dir, 'dict')
+        self.processed_dir = self.mkdir(self.result_dir, 'processed_data')
+
+        self.all_model_dir = self.mkdir(self.result_dir, 'model')
+        self.model_dir = self.mkdir(self.all_model_dir, self.model_name)
+        self.log_dir = self.mkdir(self.all_model_dir, 'log')
+        self.summary_dir = self.mkdir(self.all_model_dir, 'summary')
+        self.ckpt_dir = self.mkdir(self.model_dir, 'ckpt')
+
 
 
         # ------------ path ---------------------------------
+        self.train_data_path = join(self.dataset_dir,self.train_data_name)
+        self.dev_data_path = join(self.dataset_dir, self.dev_data_name)
+        self.test_data_path = join(self.dataset_dir, self.test_data_name)
+        self.unlabeled_data_path = join(self.dataset_dir, self.unlabeled_data_name)
+        self.emb_en_path = join(self.dataset_dir, self.emb_en_name)
+        self.emb_es_path = join(self.dataset_dir, self.emb_es_name)
+
+
+        self.processed_path = join(self.processed_dir, self.processed_name)
+        self.dict_path = join(self.dict_dir, self.dict_name)
+        self.ckpt_path = join(self.ckpt_dir, self.model_ckpt_name)
 
         # ------------ other --------------------------------
         self.floatX = 'float32'
