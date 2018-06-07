@@ -59,22 +59,22 @@ class Evaluator(object):
     # --- internal use ------
     def build_summary(self):
         with tf.name_scope('train_summaries'):
-            self.train_loss = tf.placeholder(tf.float32, [], 'train loss')
-            self.train_accuracy = tf.placeholder(tf.float32, [], 'train accuracy')
-            tf.add_to_collection('train_summaries_collection', tf.summary.scalar('train loss', self.train_loss))
-            tf.add_to_collection('train_summaries_collection', tf.summary.scalar('train accuracy', self.train_accuracy))
+            self.train_loss = tf.placeholder(tf.float32, [], 'train_loss')
+            self.train_accuracy = tf.placeholder(tf.float32, [], 'train_accuracy')
+            tf.add_to_collection('train_summaries_collection', tf.summary.scalar('train_loss', self.train_loss))
+            tf.add_to_collection('train_summaries_collection', tf.summary.scalar('train_accuracy', self.train_accuracy))
             self.train_summaries = tf.summary.merge_all('train_summaries_collection')
 
         with tf.name_scope('dev_summaries'):
-            self.dev_loss = tf.placeholder(tf.float32, [], 'dev loss')
-            self.dev_accuracy = tf.placeholder(tf.float32, [], 'dev accuracy')
-            tf.add_to_collection('dev_summaries_collection', tf.summary.scalar('dev loss', self.dev_loss))
-            tf.add_to_collection('dev_summaries_collection', tf.summary.scalar('dev accuracy', self.dev_accuracy))
+            self.dev_loss = tf.placeholder(tf.float32, [], 'dev_loss')
+            self.dev_accuracy = tf.placeholder(tf.float32, [], 'dev_accuracy')
+            tf.add_to_collection('dev_summaries_collection', tf.summary.scalar('dev_loss', self.dev_loss))
+            tf.add_to_collection('dev_summaries_collection', tf.summary.scalar('dev_accuracy', self.dev_accuracy))
             self.dev_summaries = tf.summary.merge_all('dev_summaries_collection')
 
         with tf.name_scope('test_summaries'):
-            self.test_loss = tf.placeholder(tf.float32, [], 'test loss')
-            self.test_accuracy = tf.placeholder(tf.float32, [], 'test accuracy')
-            tf.add_to_collection('test_summaries_collection', tf.summary.scalar('test loss', self.test_loss))
-            tf.add_to_collection('test_summaries_collection', tf.summary.scalar('test accuracy', self.test_accuracy))
+            self.test_loss = tf.placeholder(tf.float32, [], 'test_loss')
+            self.test_accuracy = tf.placeholder(tf.float32, [], 'test_accuracy')
+            tf.add_to_collection('test_summaries_collection', tf.summary.scalar('test_loss', self.test_loss))
+            tf.add_to_collection('test_summaries_collection', tf.summary.scalar('test_accuracy', self.test_accuracy))
             self.test_summaries = tf.summary.merge_all('test_summaries_collection')

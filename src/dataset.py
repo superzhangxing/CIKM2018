@@ -7,6 +7,7 @@ import math
 import re
 import os
 import io
+import nltk
 
 from src.file import save_file
 
@@ -26,6 +27,7 @@ class Dataset(object):
         # build vocab
         if data_type == 'train':
             assert unlabeled_file_path is not None
+            self.dicts = {}
             vocab_es_count, vocab_es_token2id, vocab_es_id2token, vocab_en_count, vocab_en_token2id, vocab_en_id2token=build_vocab(unlabeled_file_path)
             self.dicts['es'] = vocab_es_token2id
             self.dicts['en'] = vocab_en_token2id
@@ -133,8 +135,10 @@ def build_vocab(es_en_file):
             sents = line.split('\t')
             sent_es = sents[0]
             sent_en = sents[1]
-            sent_token_es = sent_es.split()
-            sent_token_en = sent_en.split()
+            # sent_token_es = sent_es.split()
+            # sent_token_en = sent_en.split()
+            sent_token_es = tokenize(sent_es, 'es')
+            sent_token_en = tokenize(sent_en, 'en')
             for token in sent_token_es:
                 token = token.lower() if cfg.lower_word else token
                 vocab_es_count[token] = vocab_es_count.get(token, 0) + 1
@@ -148,12 +152,12 @@ def build_vocab(es_en_file):
     #
     for token_pair in sorted_vocab_es:
         vocab_es_id2token[id_es] = token_pair[0]
-        vocab_es_token2id[token_pair[1]] = id_es
+        vocab_es_token2id[token_pair[0]] = id_es
         id_es += 1
 
     for token_pair in sorted_vocab_en:
         vocab_en_id2token[id_en] = token_pair[0]
-        vocab_es_token2id[token_pair[1]] = id_en
+        vocab_en_token2id[token_pair[0]] = id_en
         id_en += 1
 
     return vocab_es_count,vocab_es_token2id,vocab_es_id2token,vocab_en_count,vocab_en_token2id,vocab_en_id2token
@@ -168,10 +172,14 @@ def load_es_train_data(file, vocab_es_token2id, vocab_en_token2id):
         for line_id, line in enumerate(f):
             sample = {}
             line_split = line.split('\t')
-            sent1_token_es = line_split[0].split()
-            sent1_token_en = line_split[1].split()
-            sent2_token_es = line_split[2].split()
-            sent2_token_en = line_split[3].split()
+            # sent1_token_es = line_split[0].split()
+            # sent1_token_en = line_split[1].split()
+            # sent2_token_es = line_split[2].split()
+            # sent2_token_en = line_split[3].split()
+            sent1_token_es = tokenize(line_split[0], 'es')
+            sent1_token_en = tokenize(line_split[1], 'en')
+            sent2_token_es = tokenize(line_split[2], 'es')
+            sent2_token_en = tokenize(line_split[3], 'en')
             label = int(line_split[4])
             if len(line_split) != 5:  # check
                 continue
@@ -199,10 +207,14 @@ def load_en_train_data(file, vocab_es_token2id, vocab_en_token2id):
         for line_id, line in enumerate(f):
             sample = {}
             line_split = line.split('\t')
-            sent1_token_en = line_split[0].split()
-            sent1_token_es = line_split[1].split()
-            sent2_token_en = line_split[2].split()
-            sent2_token_es = line_split[3].split()
+            # sent1_token_en = line_split[0].split()
+            # sent1_token_es = line_split[1].split()
+            # sent2_token_en = line_split[2].split()
+            # sent2_token_es = line_split[3].split()
+            sent1_token_en = tokenize(line_split[0], 'en')
+            sent1_token_es = tokenize(line_split[1], 'es')
+            sent2_token_en = tokenize(line_split[2], 'en')
+            sent2_token_es = tokenize(line_split[3], 'es')
             label = int(line_split[4])
             if len(line_split) != 5:  # check
                 continue
@@ -232,8 +244,10 @@ def load_es_test_data(file, vocab_es_token2id):
         for line_id, line in enumerate(f):
             sample = {}
             line_split = line.split('\t')
-            sent1_token_es = line_split[0].split()
-            sent2_token_es = line_split[1].split()
+            # sent1_token_es = line_split[0].split()
+            # sent2_token_es = line_split[1].split()
+            sent1_token_es = tokenize(line_split[0], 'es')
+            sent2_token_es = tokenize(line_split[1], 'es')
             if len(line_split) != 2:  # check
                 continue
             if cfg.lower_word:
@@ -252,12 +266,24 @@ def load_emb_mat(file, vocab_token2id):
         f.readline() # skip first line
         for line in f:
             tokens = line.rstrip().split()
-            if cfg.lower_word:
-                token = tokens[0].lower()
-            else:
-                token = tokens[0]
+            if len(tokens) > cfg.word_embedding_length:
+                emb = tokens[len(tokens) - cfg.word_embedding_length :]
+                token = ' '.join(tokens[:len(tokens) - cfg.word_embedding_length])
+                if cfg.lower_word:
+                    token = token.lower()
             if token in vocab_token2id:
                 token2id = vocab_token2id[token]
                 for i in range(cfg.word_embedding_length):
-                    emb_mat[token2id][i] = float(tokens[i+1])
+                    emb_mat[token2id][i] = float(emb[i])
     return emb_mat
+
+# use nltk toolkit to tokenize sentence
+def tokenize(text, language='en'):
+    if language == 'en':
+        return nltk.word_tokenize(text)
+    elif language == 'es':
+        sepecial_token1 = re.compile(r'\¿')
+        text = sepecial_token1.sub(' ¿ ', text)
+        return nltk.word_tokenize(text, 'spanish')
+    else:
+        return nltk.word_tokenize(text)

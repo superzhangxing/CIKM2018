@@ -14,6 +14,7 @@ class Configs(object):
         parser.register('type', 'bool', (lambda x: x.lower() in ("yes", "true", "t", "1")))
 
         # @----------- control ------------------------
+        parser.add_argument('--mode', type=str, default='train', help='train, dev or test')
         parser.add_argument('--network_type', type=str, default='disan', help='network type')
         parser.add_argument('--log_period', type=int, default=2000, help='save tf summary period')
         parser.add_argument('--save_period', type=int, default=3000, help='')

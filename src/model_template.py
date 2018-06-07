@@ -22,7 +22,7 @@ class ModelTemplate(object):
         self.vocab_len = vocab_len
         self.max_sent_len = max_sent_len
         self.word_embedding_len = cfg.word_embedding_length
-        self.hn = cfg.hidden_units_num
+        self.hn = cfg.hidden_units_number
 
         self.output_class = 2 # 0 for different, 1 for same
         self.batch_size = tf.shape(self.sent1_token)[0]
@@ -38,7 +38,7 @@ class ModelTemplate(object):
         self.tensor_dict = {}
 
         # ---- dynamic learning rate ----   TODO
-        self.learning_rate = tf.placeholder(dtype=tf.float32, shape=[], name='learning rate')
+        self.learning_rate = tf.placeholder(tf.float32, shape=[], name='learning_rate')
         self.learning_rate_value = cfg.learning_rate # init learning rate
 
         # ---- start ----
