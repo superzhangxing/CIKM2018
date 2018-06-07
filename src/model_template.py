@@ -69,7 +69,7 @@ class ModelTemplate(object):
             logits=self.logits
         )
         tf.add_to_collection('losses',tf.reduce_mean(losses,name='xentropy_loss_mean'))
-        loss = tf.add_n(tf.get_collection('losses',self.cope),name='loss')
+        loss = tf.add_n(tf.get_collection('losses',self.scope),name='loss')
         tf.summary.scalar(loss.op.name,loss)
         tf.add_to_collection('ema/scalar',loss)
 
@@ -165,18 +165,18 @@ class ModelTemplate(object):
         # max lens
         sent1_len, sent2_len = 0,0
         for sample in sample_batch:
-            sent1_len = max(sent1_len, len(sample['sentence1_token_digital']))
-            sent2_len = max(sent2_len, len(sample['sentence2_token_digital']))
+            sent1_len = max(sent1_len, len(sample['sent1_token_id_es']))
+            sent2_len = max(sent2_len, len(sample['sent2_token_id_es']))
 
         # token , char-level blocked
         sent1_token_b = []  # a batch size sentence token list, b --> batch
         sent2_token_b = []
         for sample in sample_batch:
             sent1_token = np.zeros([sent1_len], cfg.intX)
-            for idx_t,token in enumerate(sample['sentence1_token_digital']):
+            for idx_t,token in enumerate(sample['sent1_token_id_es']):
                 sent1_token[idx_t] = token
             sent2_token = np.zeros([sent2_len], cfg.intX)
-            for idx_t,token in enumerate(sample['sentence2_token_digital']):
+            for idx_t,token in enumerate(sample['sent2_token_id_es']):
                 sent2_token[idx_t] = token
 
             sent1_token_b.append(sent1_token)
@@ -188,9 +188,9 @@ class ModelTemplate(object):
         gold_label_b = []
         for sample in sample_batch:
             gold_label_int = None
-            if sample['gold_label'] == 1:  # entailment
+            if sample['label'] == 1:  # entailment
                 gold_label_int = 1
-            elif sample['gold_label'] == 0: # contradiction
+            elif sample['label'] == 0: # contradiction
                 gold_label_int = 0
             assert  gold_label_int is not None
             gold_label_b.append(gold_label_int)

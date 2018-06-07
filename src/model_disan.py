@@ -7,7 +7,7 @@ from configs import cfg
 from src.record_log import  _logger
 
 class ModelDiSAN(ModelTemplate):
-    def __int__(self,emb_mat, vocab_len, max_sent_len, scope):
+    def __init__(self,emb_mat, vocab_len, max_sent_len, scope):
         super(ModelDiSAN,self).__init__(emb_mat,vocab_len,max_sent_len,scope)
         self.update_tensor_add_ema_and_opt()
 
@@ -39,14 +39,13 @@ class ModelDiSAN(ModelTemplate):
         # -------------------- sentence encoding ---------------------------------
         with tf.variable_scope('sent_encoding'):
             sent1_rep = disan(sent1_emb, self.sent1_token_mask, 'DiSAN', cfg.dropout, self.is_train,
-                              self.weight_decay, self.activation, self.tensor_dict, 'sent1'
-                              )
-            self.tensor_dict['sent1_rep'] = sent1_rep  # batch_size, sent_len, 2*word_embedding_len
+                              cfg.weight_decay, 'elu', self.tensor_dict, 'sent1')
+            self.tensor_dict['sent1_rep'] = sent1_rep  # batch_size,2*word_embedding_len
 
             tf.get_variable_scope().reuse_variables()
 
             sent2_rep = disan(sent2_emb, self.sent2_token_mask, 'DiSAN', cfg.dropout, self.is_train,
-                              self.weight_decay, self.activation, self.tensor_dict, 'sent2')
+                              cfg.weight_decay, 'elu', self.tensor_dict, 'sent2')
             self.tensor_dict['sent2_rep'] = sent2_rep
 
         # -------------------- output ---------------------------------------------

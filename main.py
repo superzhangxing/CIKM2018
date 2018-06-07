@@ -63,18 +63,18 @@ def train():
     global_step = 0
 
     for sample_batch, batch_num, data_round, idx_b in train_data_obj.generate_batch_sample_iter(num_steps):
-        global_step = sess.run(model.gloabl_step) + 1
+        global_step = sess.run(model.global_step) + 1
         if_get_summary = global_step % (cfg.log_period or steps_per_epoch) == 0
         loss, summary, train_op = model.step(sess, sample_batch, get_summary=if_get_summary)
-        if global_step % 100 ==0 or global_step==1:
-            _logger.add('data round: %d: %d%d, global_step:%d -- loss:%.4f' %
+        if global_step % 10 ==0 or global_step==1:
+            _logger.add('data round: %d: %d/%d, global_step:%d -- loss:%.4f' %
                         (data_round, idx_b, batch_num, global_step, loss))
 
         if if_get_summary:
             graphHandler.add_summary(summary, global_step)
 
         # Occasional evaluation
-        if global_step > int(cfg.num_steps - 100000) and (cfg.global_step % (cfg.eval_period or steps_per_epoch) == 0):
+        if global_step > int(cfg.num_steps - 100000) and (global_step % (cfg.eval_period or steps_per_epoch) == 0):
             # ---- dev ----
             dev_loss, dev_accu =evaluator.get_evaluation(sess, dev_data_obj, global_step)
             _logger.add('==> for dev, loss: %.4f, accuracy: .4f' %

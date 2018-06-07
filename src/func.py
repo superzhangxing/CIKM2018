@@ -50,7 +50,7 @@ def directional_attention_with_dense(rep_tensor, rep_mask,direction=None, scope=
                 direct_mask = tf.greater(sent_len_row, sent_len_col)
             else:
                 direct_mask = tf.greater(sent_len_col, sent_len_row)
-        direct_mask_tile = tf.tile(tf.expend_dims(direct_mask,0),[batch_size,1,1]) # batch_size, sent_len, sent_len
+        direct_mask_tile = tf.tile(tf.expand_dims(direct_mask,0),[batch_size,1,1]) # batch_size, sent_len, sent_len
         rep_mask_tile = tf.tile(tf.expand_dims(rep_mask,1),[1,sent_len,1]) # batch_size, sent_len, sent_len
         attn_mask = tf.logical_and(direct_mask_tile, rep_mask_tile) # batch_size, sent_len, sent_len
 
@@ -74,7 +74,7 @@ def directional_attention_with_dense(rep_tensor, rep_mask,direction=None, scope=
             attn_score = tf.nn.softmax(logits_mask, 2)
             attn_score = mask_for_high_rank(attn_score, attn_mask)
 
-            attn_result = tf.reduce_sum(attn_score * rep_mask_tile, 2)
+            attn_result = tf.reduce_sum(attn_score * rep_map_tile, 2)
 
         # output, fusion
         with tf.variable_scope('output'):
