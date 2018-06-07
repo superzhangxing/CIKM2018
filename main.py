@@ -74,7 +74,8 @@ def train():
             graphHandler.add_summary(summary, global_step)
 
         # Occasional evaluation
-        if global_step > int(cfg.num_steps - 100000) and (global_step % (cfg.eval_period or steps_per_epoch) == 0):
+        #if global_step > int(cfg.num_steps - 100000) and (global_step % (cfg.eval_period or steps_per_epoch) == 0):
+        if True:  # debug
             # ---- dev ----
             dev_loss, dev_accu =evaluator.get_evaluation(sess, dev_data_obj, global_step)
             _logger.add('==> for dev, loss: %.4f, accuracy: .4f' %

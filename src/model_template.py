@@ -65,7 +65,7 @@ class ModelTemplate(object):
         _logger.add('regularization var num: %d' % len(reg_vars))
         _logger.add('trainable var num: %d' % len(trainable_vars))
         losses = tf.nn.sparse_softmax_cross_entropy_with_logits(
-            labels=self.gold_label,
+            labels=tf.stop_gradient(self.gold_label),
             logits=self.logits
         )
         tf.add_to_collection('losses',tf.reduce_mean(losses,name='xentropy_loss_mean'))
