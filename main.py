@@ -102,16 +102,24 @@ def test():
     assert cfg.load_path is not None
 
     #TODO
-    loadFile = True
+    loadFile = False
     ifLoad, data = False, None
     if loadFile:
         ifLoad, data = load_file(cfg.processed_path, 'processed data', 'pickle')
     if not ifLoad or not loadFile:
-        raise RuntimeError('cannot find pre-processed dataset')
+        train_data_obj = Dataset(cfg.train_data_path, 'train', language_type='es',
+                         unlabeled_file_path=cfg.unlabeled_data_path, emb_file_path=cfg.emb_es_path)
+        dev_data_obj = Dataset(cfg.dev_data_path, 'dev', dicts=train_data_obj.dicts)
+        test_data_obj = Dataset(cfg.test_data_path, 'test', dicts=train_data_obj.dicts)
+
+        save_file({'train_data_obj':train_data_obj, 'dev_data_obj':dev_data_obj, 'test_data_obj':test_data_obj},
+                  cfg.processed_path)
+
+        train_data_obj.save_dict(cfg.dict_path)
     else:
-        train_data_obj = data['train_data_object']
-        dev_data_obj = data['dev_data_object']
-        test_data_obj = data['test_data_object']
+        train_data_obj = data['train_data_obj']
+        dev_data_obj = data['dev_data_obj']
+        test_data_obj = data['test_data_obj']
 
     emb_mat_token = train_data_obj.emb_mat_token
 
@@ -147,7 +155,15 @@ def infer():
     if loadFile:
         ifLoad, data = load_file(cfg.processed_path, 'processed data', 'pickle')
     if not ifLoad or not loadFile:
-        raise RuntimeError('cannot find pre-processed dataset')
+        train_data_obj = Dataset(cfg.train_data_path, 'train', language_type='es',
+                         unlabeled_file_path=cfg.unlabeled_data_path, emb_file_path=cfg.emb_es_path)
+        dev_data_obj = Dataset(cfg.dev_data_path, 'dev', dicts=train_data_obj.dicts)
+        test_data_obj = Dataset(cfg.test_data_path, 'test', dicts=train_data_obj.dicts)
+
+        save_file({'train_data_obj':train_data_obj, 'dev_data_obj':dev_data_obj, 'test_data_obj':test_data_obj},
+                  cfg.processed_path)
+
+        train_data_obj.save_dict(cfg.dict_path)
     else:
         train_data_obj = data['train_data_obj']
         dev_data_obj = data['dev_data_obj']
@@ -174,7 +190,7 @@ def infer():
     step = 6500
     model_path = os.path.join(cfg.ckpt_dir, 'top_result_saver_step_%d.ckpt' % step)
     saver.restore(sess, model_path)
-    prob_array = inference.get_inference(sess, test_data_obj)
+    logits_array, prob_array = inference.get_inference(sess, test_data_obj)
 
     inference.save_inference(prob_array, cfg.infer_path)
 
