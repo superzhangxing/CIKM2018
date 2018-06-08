@@ -78,15 +78,13 @@ def train():
         if True:  # debug
             # ---- dev ----
             dev_loss, dev_accu =evaluator.get_evaluation(sess, dev_data_obj, global_step)
-            _logger.add('==> for dev, loss: %.4f, accuracy: .4f' %
-                        (dev_loss, dev_accu))
+            _logger.add('==> for dev, loss: %.4f, accuracy: %.4f' % (dev_loss, dev_accu))
 
             # ---- test ----
-            test_loss, test_accu = evaluator.get_evaluation(
-                sess, test_data_obj, global_step
-            )
-            _logger.add('~~> for test, loss: %.4f, accuracy: %.4f' %
-                        (test_loss, test_accu))
+            # test_loss, test_accu = evaluator.get_evaluation(
+            #     sess, test_data_obj, global_step
+            # )
+            # _logger.add('~~> for test, loss: %.4f, accuracy: %.4f' % (test_loss, test_accu))
 
             model.update_learning_rate(dev_loss, cfg.lr_decay)
             is_in_top, deleted_step = performRecorder.update_top_list(global_step, dev_accu, sess)
