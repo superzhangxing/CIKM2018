@@ -27,7 +27,7 @@ class Inference(object):
     def save_inference(self, prob_array, file_path = cfg.infer_path):
         with open(file_path, 'w', encoding='utf-8') as f:
             for i in range(prob_array.size):
-                f.write(prob_array[i])
+                f.write(str(prob_array[i]))
                 f.write('\n')
 
 
