@@ -14,7 +14,7 @@ class Configs(object):
         parser.register('type', 'bool', (lambda x: x.lower() in ("yes", "true", "t", "1")))
 
         # @----------- control ------------------------
-        parser.add_argument('--mode', type=str, default='train', help='train, dev or test')
+        parser.add_argument('--mode', type=str, default='infer', help='train, infer')
         parser.add_argument('--network_type', type=str, default='disan', help='network type')
         parser.add_argument('--log_period', type=int, default=2000, help='save tf summary period')
         parser.add_argument('--save_period', type=int, default=3000, help='')
@@ -64,6 +64,7 @@ class Configs(object):
         self.processed_name = 'processed' + '.pickle'
 
         self.dict_name = 'dicts'
+        self.infer_name = 'infer'
 
         self.model_name = self.network_type
         self.model_ckpt_name = 'modelfile.ckpt'
@@ -72,6 +73,7 @@ class Configs(object):
         self.result_dir = self.mkdir(self.project_dir, 'result')
         self.dict_dir = self.mkdir(self.result_dir, 'dict')
         self.processed_dir = self.mkdir(self.result_dir, 'processed_data')
+        self.infer_dir = self.mkdir(self.result_dir, 'infer')
 
         self.all_model_dir = self.mkdir(self.result_dir, 'model')
         self.model_dir = self.mkdir(self.all_model_dir, self.model_name)
@@ -90,6 +92,7 @@ class Configs(object):
         self.emb_es_path = join(self.dataset_dir, self.emb_es_name)
 
 
+        self.infer_path = join(self.infer_dir, self.infer_name)
         self.processed_path = join(self.processed_dir, self.processed_name)
         self.dict_path = join(self.dict_dir, self.dict_name)
         self.ckpt_path = join(self.ckpt_dir, self.model_ckpt_name)

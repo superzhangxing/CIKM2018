@@ -1,5 +1,6 @@
 import math
 import tensorflow as tf
+import os
 
 from configs import cfg
 from src.dataset import Dataset
@@ -8,7 +9,7 @@ from src.record_log import _logger
 from src.graph_handler import GraphHandler
 from src.evaluator import Evaluator
 from src.perform_recorder import PerformRecorder
-
+from src.inference import Inference
 
 # choose model
 network_type = cfg.network_type
@@ -138,11 +139,50 @@ def test():
     train_loss, train_accu = evaluator.get_evaluation(sess, train_data_obj, None)
     _logger.add('--> for train, loss: %.4f, accuracy: %.4f' % (train_loss, train_accu))
 
+def infer():
+    # load infer data, need to fix
+    #TODO
+    loadFile = True
+    ifLoad, data = False, None
+    if loadFile:
+        ifLoad, data = load_file(cfg.processed_path, 'processed data', 'pickle')
+    if not ifLoad or not loadFile:
+        raise RuntimeError('cannot find pre-processed dataset')
+    else:
+        train_data_obj = data['train_data_obj']
+        dev_data_obj = data['dev_data_obj']
+        test_data_obj = data['test_data_obj']
+
+    infer_data_obj = test_data_obj
+
+    # load model
+    emb_mat_token = train_data_obj.emb_mat_token   # need to restore model
+
+    with tf.variable_scope(network_type) as scope:
+        if network_type in model_type_set:
+            model = Model(emb_mat_token, len(train_data_obj.dicts['es']), 100, scope.name)
+
+    graphHandler = GraphHandler(model)
+    #evaluator = Evaluator(model)
+    inference = Inference(model)
+
+    graph_config = tf.ConfigProto()
+    sess = tf.Session(config=graph_config)
+    graphHandler.initialize(sess)
+
+    saver = tf.train.Saver()
+    step = 6500
+    model_path = os.path.join(cfg.ckpt_dir, 'top_result_saver_step_%d.ckpt' % step)
+    saver.restore(sess, model_path)
+    prob_array = inference.get_inference(sess, test_data_obj)
+
+    inference.save_inference(prob_array, cfg.infer_path)
+
 def main(_):
     if cfg.mode == 'train':
         train()
-    elif cfg.mode == 'test':
-        test()
+    elif cfg.mode == 'infer':
+        infer()
     else:
         raise RuntimeError('no running mode named as %s'% cfg.mode)
 

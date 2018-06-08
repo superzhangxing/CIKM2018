@@ -184,24 +184,30 @@ class ModelTemplate(object):
         sent1_token_b = np.stack(sent1_token_b)
         sent2_token_b = np.stack(sent2_token_b)
 
-        # label
-        gold_label_b = []
-        for sample in sample_batch:
-            gold_label_int = None
-            if sample['label'] == 1:  # entailment
-                gold_label_int = 1
-            elif sample['label'] == 0: # contradiction
-                gold_label_int = 0
-            assert  gold_label_int is not None
-            gold_label_b.append(gold_label_int)
-        gold_label_b = np.stack(gold_label_b).astype(cfg.intX)
+        if data_type == 'infer':
+            feed_dict = {
+                self.sent1_token: sent1_token_b,
+                self.sent2_token: sent2_token_b
+            }
+        else:
+            # label
+            gold_label_b = []
+            for sample in sample_batch:
+                gold_label_int = None
+                if sample['label'] == 1:  # entailment
+                    gold_label_int = 1
+                elif sample['label'] == 0:  # contradiction
+                    gold_label_int = 0
+                assert gold_label_int is not None
+                gold_label_b.append(gold_label_int)
+            gold_label_b = np.stack(gold_label_b).astype(cfg.intX)
 
-        feed_dict = {
-            self.sent1_token: sent1_token_b,
-            self.sent2_token: sent2_token_b,
-            self.gold_label:gold_label_b,
-            self.is_train:True if data_type=='train' else False,
-            self.learning_rate : self.learning_rate_value
-        }
+            feed_dict = {
+                self.sent1_token: sent1_token_b,
+                self.sent2_token: sent2_token_b,
+                self.gold_label: gold_label_b,
+                self.is_train: True if data_type == 'train' else False,
+                self.learning_rate: self.learning_rate_value
+            }
 
         return feed_dict
