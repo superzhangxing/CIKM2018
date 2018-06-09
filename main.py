@@ -10,6 +10,7 @@ from src.graph_handler import GraphHandler
 from src.evaluator import Evaluator
 from src.perform_recorder import PerformRecorder
 from src.inference import Inference
+from src.util.preprocess_data import PreprocessData
 
 # choose model
 network_type = cfg.network_type
@@ -82,10 +83,10 @@ def train():
             _logger.add('==> for dev, loss: %.4f, accuracy: %.4f' % (dev_loss, dev_accu))
 
             # ---- test ----
-            # test_loss, test_accu = evaluator.get_evaluation(
-            #     sess, test_data_obj, global_step
-            # )
-            # _logger.add('~~> for test, loss: %.4f, accuracy: %.4f' % (test_loss, test_accu))
+            test_loss, test_accu = evaluator.get_evaluation(
+                sess, test_data_obj, global_step
+            )
+            _logger.add('~~> for test, loss: %.4f, accuracy: %.4f' % (test_loss, test_accu))
 
             model.update_learning_rate(dev_loss, cfg.lr_decay)
             is_in_top, deleted_step = performRecorder.update_top_list(global_step, dev_accu, sess)
@@ -97,6 +98,7 @@ def train():
     # TODO
     # do_analyse
 
+# deprecated
 def test():
 
     assert cfg.load_path is not None
@@ -169,7 +171,7 @@ def infer():
         dev_data_obj = data['dev_data_obj']
         test_data_obj = data['test_data_obj']
 
-    infer_data_obj = test_data_obj
+    infer_data_obj = Dataset(cfg.infer_data_path, 'infer', dicts=train_data_obj.dicts)
 
     # load model
     emb_mat_token = train_data_obj.emb_mat_token   # need to restore model
@@ -192,13 +194,19 @@ def infer():
     saver.restore(sess, model_path)
     logits_array, prob_array = inference.get_inference(sess, test_data_obj)
 
-    inference.save_inference(prob_array, cfg.infer_path)
+    inference.save_inference(prob_array, cfg.infer_result_path)
+
+def preprocess():
+    preprocess_data = PreprocessData(cfg.org_train_data_path)
+    preprocess_data.downsampling(10)
 
 def main(_):
     if cfg.mode == 'train':
         train()
     elif cfg.mode == 'infer':
         infer()
+    elif cfg.mode == 'preprocess':
+        preprocess()
     else:
         raise RuntimeError('no running mode named as %s'% cfg.mode)
 

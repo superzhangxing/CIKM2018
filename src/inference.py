@@ -2,6 +2,7 @@ from configs import cfg
 from src.record_log import _logger
 import numpy as np
 import tensorflow as tf
+import time
 
 class Inference(object):
     def __init__(self, model):
@@ -24,7 +25,10 @@ class Inference(object):
 
         return logits_array, prob_array
 
-    def save_inference(self, prob_array, file_path = cfg.infer_path):
+    def save_inference(self, prob_array, file_path = cfg.infer_result_path):
+        buildTime = '-'.join(time.asctime(time.localtime(time.time())).strip().split(' ')[1:-1])
+        buildTime = '-'.join(buildTime.split(':'))
+        file_path += buildTime
         with open(file_path, 'w', encoding='utf-8') as f:
             for i in range(prob_array.size):
                 f.write(str(prob_array[i]))

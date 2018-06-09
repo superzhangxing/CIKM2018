@@ -14,7 +14,7 @@ class Configs(object):
         parser.register('type', 'bool', (lambda x: x.lower() in ("yes", "true", "t", "1")))
 
         # @----------- control ------------------------
-        parser.add_argument('--mode', type=str, default='infer', help='train, infer')
+        parser.add_argument('--mode', type=str, default='train', help='train, infer,preprocess')
         parser.add_argument('--network_type', type=str, default='disan', help='network type')
         parser.add_argument('--log_period', type=int, default=2000, help='save tf summary period')
         parser.add_argument('--save_period', type=int, default=3000, help='')
@@ -54,9 +54,11 @@ class Configs(object):
                 exec('self.%s = self.args.%s' % (key,key))
 
         # ------------ name ---------------------------------
-        self.train_data_name = 'cikm_english_train_20180516.txt'
-        self.dev_data_name = 'cikm_spanish_train_20180516.txt'
-        self.test_data_name = 'cikm_test_a_20180516.txt'
+        self.org_train_data_name = 'cikm_english_train_20180516.txt'
+        self.train_data_name = 'train_1'
+        self.dev_data_name = 'dev_1'
+        self.test_data_name = 'cikm_spanish_train_20180516.txt'
+        self.infer_data_name = 'cikm_test_a_20180516.txt'
         self.unlabeled_data_name = 'cikm_unlabel_spanish_train_20180516.txt'
         self.emb_es_name = 'wiki.es.vec'
         self.emb_en_name = 'wiki.en.vec'
@@ -64,7 +66,7 @@ class Configs(object):
         self.processed_name = 'processed' + '.pickle'
 
         self.dict_name = 'dicts'
-        self.infer_name = 'infer'
+        self.infer_result_name = 'infer'
 
         self.model_name = self.network_type
         self.model_ckpt_name = 'modelfile.ckpt'
@@ -84,15 +86,17 @@ class Configs(object):
 
 
         # ------------ path ---------------------------------
+        self.org_train_data_path = join(self.dataset_dir, self.org_train_data_name)
         self.train_data_path = join(self.dataset_dir,self.train_data_name)
         self.dev_data_path = join(self.dataset_dir, self.dev_data_name)
         self.test_data_path = join(self.dataset_dir, self.test_data_name)
+        self.infer_data_path = join(self.dataset_dir, self.infer_data_name)
         self.unlabeled_data_path = join(self.dataset_dir, self.unlabeled_data_name)
         self.emb_en_path = join(self.dataset_dir, self.emb_en_name)
         self.emb_es_path = join(self.dataset_dir, self.emb_es_name)
 
 
-        self.infer_path = join(self.infer_dir, self.infer_name)
+        self.infer_result_path = join(self.infer_dir, self.infer_result_name)
         self.processed_path = join(self.processed_dir, self.processed_name)
         self.dict_path = join(self.dict_dir, self.dict_name)
         self.ckpt_path = join(self.ckpt_dir, self.model_ckpt_name)

@@ -8,6 +8,7 @@ import re
 import os
 import io
 import nltk
+from tokenize import  generate_tokens
 
 from src.file import save_file
 
@@ -18,10 +19,10 @@ class Dataset(object):
     def __init__(self, data_file_path, data_type, dicts=None, language_type = 'es', unlabeled_file_path=None, emb_file_path=None):
         self.data_type = data_type
         _logger.add('building data set object for %s' % data_type)
-        assert data_type in ['train', 'dev', 'test']
+        assert data_type in ['train', 'dev', 'test','infer']
 
         # check
-        if data_type in ['dev', 'test']:
+        if data_type in ['dev', 'test','infer']:
             assert dicts is not None
 
         # build vocab
@@ -38,8 +39,10 @@ class Dataset(object):
         if data_type=='train':
             self.nn_data = load_en_train_data(data_file_path, self.dicts['es'], self.dicts['en'])
         elif data_type=='dev':
-            self.nn_data = load_es_train_data(data_file_path, self.dicts['es'], self.dicts['en'])
+            self.nn_data = load_en_train_data(data_file_path, self.dicts['es'], self.dicts['en'])
         elif data_type == 'test':
+            self.nn_data = load_es_train_data(data_file_path, self.dicts['es'], self.dicts['en'])
+        elif data_type == 'infer':
             self.nn_data = load_es_test_data(data_file_path, self.dicts['es'])
         self.sample_num = len(self.nn_data)
         # generate embedding
@@ -137,8 +140,8 @@ def build_vocab(es_en_file):
             sent_en = sents[1]
             # sent_token_es = sent_es.split()
             # sent_token_en = sent_en.split()
-            sent_token_es = tokenize(sent_es, 'es')
-            sent_token_en = tokenize(sent_en, 'en')
+            sent_token_es = tokenize(sent_es, language='es')
+            sent_token_en = tokenize(sent_en, language='en')
             for token in sent_token_es:
                 token = token.lower() if cfg.lower_word else token
                 vocab_es_count[token] = vocab_es_count.get(token, 0) + 1
@@ -277,7 +280,7 @@ def load_emb_mat(file, vocab_token2id):
                     emb_mat[token2id][i] = float(emb[i])
     return emb_mat
 
-# use nltk toolkit to tokenize sentence
+#use nltk toolkit to tokenize sentence
 def tokenize(text, language='en'):
     if language == 'en':
         return nltk.word_tokenize(text)
@@ -287,3 +290,16 @@ def tokenize(text, language='en'):
         return nltk.word_tokenize(text, 'spanish')
     else:
         return nltk.word_tokenize(text)
+
+# need to fix bug
+# def tokenize(text, language='en'):
+#     result = []
+#     if len(text) == 0:
+#         return result
+#
+#     for _,token,_,_,_ in generate_tokens(io.StringIO(text).readline):
+#         result.append(token)
+#     if len(result[-1]) == 0:
+#         result = result[:-1]
+#
+#     return result
