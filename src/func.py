@@ -122,6 +122,56 @@ def multi_dimensional_attention(rep_tensor, rep_mask, scope=None, keep_prob=1.,
         return attn_output
 
 
+# -------------------------- LSTM ----------------------------------------
+class rnn_lstm(object):
+    def __init__(self,num_layers,hidden_size,batch_size, scope = None):
+        self.num_layers = num_layers
+        self.hidded_size = hidden_size
+        self.batch_size = batch_size
+        self.scope = scope
+
+        with tf.variable_scope(self.scope or 'rnn_lstm'):
+            cell = [tf.nn.rnn_cell.LSTMCell(hidden_size, state_is_tuple=True) for _ in range(num_layers)]
+            self.multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(cell)
+            self.initial_state = self.multi_rnn_cell.zero_state(batch_size, dtype=tf.float32)
+
+    def __call__(self, inputs,sequence_length):
+        with tf.variable_scope(self.scope or 'rnn_lstm'):
+            outputs, state = tf.nn.dynamic_rnn(cell=self.multi_rnn_cell,
+                                    inputs=inputs,
+                                    sequence_length=sequence_length,
+                                    initial_state=self.initial_state,
+                                    dtype=tf.float32)
+        return outputs,state
+
+class rnn_bi_lstm(object):
+    def __init__(self,num_layers,hidden_size,batch_size, scope):
+        self.num_layers = num_layers
+        self.hidded_size = hidden_size
+        self.batch_size = batch_size
+        self.scope = scope
+
+        with tf.variable_scope(self.scope or 'rnn_lstm'):
+            fw_cell = [tf.nn.rnn_cell.LSTMCell(hidden_size, state_is_tuple=True) for _ in range(num_layers)]
+            bw_cell = [tf.nn.rnn_cell.LSTMCell(hidden_size, state_is_tuple=True) for _ in range(num_layers)]
+            self.fw_multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(fw_cell)
+            self.fw_initial_state = self.fw_multi_rnn_cell.zero_state(batch_size, dtype=tf.float32)
+            self.bw_multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(bw_cell)
+            self.bw_initial_state = self.bw_multi_rnn_cell.zero_state(batch_size, dtype=tf.float32)
+
+    def __call__(self, inputs,sequence_length):
+        with tf.variable_scope(self.scope or 'rnn_lstm'):
+            outputs, state = tf.nn.bidirectional_dynamic_rnn(cell_fw=self.fw_multi_rnn_cell,
+                                                         cell_bw=self.bw_multi_rnn_cell,
+                                                         inputs=inputs,
+                                                         sequence_length=sequence_length,
+                                                         initial_state_fw=self.fw_initial_state,
+                                                         initial_state_bw=self.bw_initial_state,
+                                                         dtype=tf.float32)
+        return outputs,state
+
+# ----------------------------  tools --------------------------------------------
+
 # bn-->batch norm
 def bn_dense_layer(input_tensor,hn,bias,bias_start=0.,scope=None,
                    activation = 'relu', enable_bn=True,

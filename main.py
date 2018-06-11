@@ -16,8 +16,10 @@ from src.util.preprocess_data import PreprocessData
 network_type = cfg.network_type
 if network_type == 'disan':
     from src.model_disan import ModelDiSAN as Model
+elif network_type == 'rnn_bi_lstm':
+    from src.model_bi_lstm import ModelBiLSTM as Model
 
-model_type_set = ['disan']
+model_type_set = ['disan','rnn_bi_lstm']
 
 def train():
     # output_model_params()
