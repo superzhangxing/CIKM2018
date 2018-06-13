@@ -27,18 +27,21 @@ def train():
     # need to fixed, reusability of data
     loadFile = True
     ifLoad, data = False, None
+    loaddict, dicts = load_file(cfg.dict_path, 'dict', 'pickle')
+    if not loaddict:
+        raise (ValueError, 'dict load failed')
     if loadFile:
         ifLoad, data = load_file(cfg.processed_path, 'processed data', 'pickle')
     if not ifLoad or not loadFile:
-        train_data_obj = Dataset(cfg.train_data_path, 'train', language_type='es',
+        train_data_obj = Dataset(cfg.train_data_path, 'train', dicts = dicts, language_type='es',
                          unlabeled_file_path=cfg.unlabeled_data_path, emb_file_path=cfg.emb_es_path)
-        dev_data_obj = Dataset(cfg.dev_data_path, 'dev', dicts=train_data_obj.dicts)
-        test_data_obj = Dataset(cfg.test_data_path, 'test', dicts=train_data_obj.dicts)
+        dev_data_obj = Dataset(cfg.dev_data_path, 'dev', dicts=dicts)
+        test_data_obj = Dataset(cfg.test_data_path, 'test', dicts=dicts)
 
         save_file({'train_data_obj':train_data_obj, 'dev_data_obj':dev_data_obj, 'test_data_obj':test_data_obj},
                   cfg.processed_path)
 
-        train_data_obj.save_dict(cfg.dict_path)
+        # train_data_obj.save_dict(cfg.dict_path)
     else:
         train_data_obj = data['train_data_obj']
         dev_data_obj = data['dev_data_obj']
@@ -79,7 +82,7 @@ def train():
 
         # Occasional evaluation
         #if global_step > int(cfg.num_steps - 100000) and (global_step % (cfg.eval_period or steps_per_epoch) == 0):
-        if True:  # debug
+        if global_step % 100 == 0:  # debug
             # ---- dev ----
             dev_loss, dev_accu =evaluator.get_evaluation(sess, dev_data_obj, global_step)
             _logger.add('==> for dev, loss: %.4f, accuracy: %.4f' % (dev_loss, dev_accu))
@@ -156,24 +159,27 @@ def infer():
     #TODO
     loadFile = True
     ifLoad, data = False, None
+    loaddict, dicts = load_file(cfg.dict_path, 'dict', 'pickle')
+    if not loaddict:
+        raise (ValueError, 'dict load failed')
     if loadFile:
         ifLoad, data = load_file(cfg.processed_path, 'processed data', 'pickle')
     if not ifLoad or not loadFile:
-        train_data_obj = Dataset(cfg.train_data_path, 'train', language_type='es',
+        train_data_obj = Dataset(cfg.train_data_path, 'train', dicts = dicts, language_type='es',
                          unlabeled_file_path=cfg.unlabeled_data_path, emb_file_path=cfg.emb_es_path)
-        dev_data_obj = Dataset(cfg.dev_data_path, 'dev', dicts=train_data_obj.dicts)
-        test_data_obj = Dataset(cfg.test_data_path, 'test', dicts=train_data_obj.dicts)
+        dev_data_obj = Dataset(cfg.dev_data_path, 'dev', dicts=dicts)
+        test_data_obj = Dataset(cfg.test_data_path, 'test', dicts=dicts)
 
         save_file({'train_data_obj':train_data_obj, 'dev_data_obj':dev_data_obj, 'test_data_obj':test_data_obj},
                   cfg.processed_path)
 
-        train_data_obj.save_dict(cfg.dict_path)
+        # train_data_obj.save_dict(cfg.dict_path)
     else:
         train_data_obj = data['train_data_obj']
         dev_data_obj = data['dev_data_obj']
         test_data_obj = data['test_data_obj']
 
-    infer_data_obj = Dataset(cfg.infer_data_path, 'infer', dicts=train_data_obj.dicts)
+    infer_data_obj = Dataset(cfg.infer_data_path, 'infer', dicts=dicts)
 
     # load model
     emb_mat_token = train_data_obj.emb_mat_token   # need to restore model
@@ -199,7 +205,9 @@ def infer():
     inference.save_inference(prob_array, cfg.infer_result_path)
 
 def preprocess():
-    preprocess_data = PreprocessData(cfg.org_train_data_path)
+    preprocess_data = PreprocessData(cfg.en_train_data_path, cfg.es_train_data_path, cfg.test_a_data_path,
+                                     cfg.unlabeled_data_path, cfg.emb_en_path, cfg.emb_es_path)
+    preprocess_data.build_vocab()
     preprocess_data.downsampling(10)
 
 def main(_):

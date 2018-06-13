@@ -25,15 +25,16 @@ class Dataset(object):
         if data_type in ['dev', 'test','infer']:
             assert dicts is not None
 
-        # build vocab
-        if data_type == 'train':
-            assert unlabeled_file_path is not None
-            self.dicts = {}
-            vocab_es_count, vocab_es_token2id, vocab_es_id2token, vocab_en_count, vocab_en_token2id, vocab_en_id2token=build_vocab(unlabeled_file_path)
-            self.dicts['es'] = vocab_es_token2id
-            self.dicts['en'] = vocab_en_token2id
-        else:
-            self.dicts = dicts
+        # build vocab  --> deprecated --> dicts is preprocessed
+        # if data_type == 'train':
+        #     assert unlabeled_file_path is not None
+        #     self.dicts = {}
+        #     vocab_es_count, vocab_es_token2id, vocab_es_id2token, vocab_en_count, vocab_en_token2id, vocab_en_id2token=build_vocab(unlabeled_file_path)
+        #     self.dicts['es'] = vocab_es_token2id
+        #     self.dicts['en'] = vocab_en_token2id
+        # else:
+        #     self.dicts = dicts
+        self.dicts = dicts
 
         # data
         if data_type=='train':
@@ -113,7 +114,7 @@ class Dataset(object):
 
 
 # ---------------------- internal use ------------------------
-# build vocab with unlabeled data
+# # build vocab with unlabeled data
 def build_vocab(es_en_file):
     vocab_es_count = {}
     vocab_en_count = {}
@@ -286,7 +287,9 @@ def tokenize(text, language='en'):
         return nltk.word_tokenize(text)
     elif language == 'es':
         sepecial_token1 = re.compile(r'\¿')
+        sepecial_token2 = re.compile(r'\¡')
         text = sepecial_token1.sub(' ¿ ', text)
+        text = sepecial_token2.sub(' ¡ ', text)
         return nltk.word_tokenize(text, 'spanish')
     else:
         return nltk.word_tokenize(text)

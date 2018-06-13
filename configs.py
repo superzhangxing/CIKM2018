@@ -55,6 +55,9 @@ class Configs(object):
 
         # ------------ name ---------------------------------
         self.org_train_data_name = 'cikm_english_train_20180516.txt'
+        self.en_train_data_name = 'cikm_english_train_20180516.txt'
+        self.es_train_data_name = 'cikm_spanish_train_20180516.txt'
+        self.test_a_data_name = 'cikm_test_a_20180516.txt'
         self.train_data_name = 'train_1'
         self.dev_data_name = 'dev_1'
         self.test_data_name = 'cikm_spanish_train_20180516.txt'
@@ -87,6 +90,9 @@ class Configs(object):
 
         # ------------ path ---------------------------------
         self.org_train_data_path = join(self.dataset_dir, self.org_train_data_name)
+        self.en_train_data_path = join(self.dataset_dir, self.en_train_data_name)
+        self.es_train_data_path = join(self.dataset_dir, self.es_train_data_name)
+        self.test_a_data_path = join(self.dataset_dir, self.test_a_data_name)
         self.train_data_path = join(self.dataset_dir,self.train_data_name)
         self.dev_data_path = join(self.dataset_dir, self.dev_data_name)
         self.test_data_path = join(self.dataset_dir, self.test_data_name)
