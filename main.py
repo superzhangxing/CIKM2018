@@ -208,7 +208,9 @@ def preprocess():
     preprocess_data = PreprocessData(cfg.en_train_data_path, cfg.es_train_data_path, cfg.test_a_data_path,
                                      cfg.unlabeled_data_path, cfg.emb_en_path, cfg.emb_es_path)
     preprocess_data.build_vocab()
-    preprocess_data.downsampling(10)
+    #preprocess_data.downsampling(10)
+    preprocess_data.upsampling(10)
+
 
 def main(_):
     if cfg.mode == 'train':
