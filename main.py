@@ -77,7 +77,7 @@ def train():
         global_step = sess.run(model.global_step) + 1
         if_get_summary = global_step % (cfg.log_period or steps_per_epoch) == 0
         loss, summary, train_op = model.step(sess, sample_batch, get_summary=if_get_summary)
-        if global_step % 10 ==0 or global_step==1:
+        if global_step % 100 ==0 or global_step==1:
             _logger.add('data round: %d: %d/%d, global_step:%d -- loss:%.4f' %
                         (data_round, idx_b, batch_num, global_step, loss))
 
