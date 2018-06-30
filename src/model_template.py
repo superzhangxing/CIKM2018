@@ -89,13 +89,13 @@ class ModelTemplate(object):
         self.accuracy = self.build_accuracy()
 
         # -------------------------- ema --------------------------TODO
-        # if True:
-        #     self.var_ema = tf.train.ExponentialMovingAverage(cfg.var_decay)
-        #     self.build_var_ema()
-        #
-        # if cfg.mode == 'train':
-        #     self.ema = tf.train.ExponentialMovingAverage(cfg.decay)
-        #     self.build_ema()
+        if True:
+            self.var_ema = tf.train.ExponentialMovingAverage(cfg.var_decay)
+            self.build_var_ema()
+
+        if cfg.mode == 'train':
+            self.ema = tf.train.ExponentialMovingAverage(cfg.decay)
+            self.build_ema()
         self.summary = tf.summary.merge_all()
 
         # -------------------------- optimization ----------------
@@ -124,14 +124,23 @@ class ModelTemplate(object):
         self.train_op = self.opt.minimize(self.loss, self.global_step, var_list=tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,self.scope))
 
     def build_var_ema(self):
-        """TODO"""
-        ema_op = self.var_ema.apply(tf.trainable_variables())
+        ema_op = self.var_ema.apply(tf.trainable_variables(),)
         with tf.control_dependencies([ema_op]):
             self.loss = tf.identity(self.loss)
 
     def build_ema(self):
         """TODO"""
-        return
+        tensors = tf.get_collection("ema/scalar", scope=self.scope) + tf.get_collection("ema/vector", scope=self.scope)
+        ema_op = self.ema.apply(tensors)
+        for var in tf.get_collection("ema/scalar", scope = self.scope):
+            ema_var = self.ema.average(var)
+            tf.summary.scalar(ema_var.op.name, ema_var)
+        for var in tf.get_collection("ema/vector", scope = self.scope):
+            ema_var = self.ema.average(var)
+            tf.summary.histogram(ema_var.op.name, ema_var)
+
+        with tf.control_dependencies([ema_op]):
+            self.loss = tf.identity(self.loss)
 
     def step(self, sess, batch_samples, get_summary=False):
         assert isinstance(sess, tf.Session)
