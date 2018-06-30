@@ -19,20 +19,22 @@ class Configs(object):
         parser.add_argument('--log_period', type=int, default=2000, help='save tf summary period')
         parser.add_argument('--save_period', type=int, default=3000, help='')
         parser.add_argument('--eval_period', type=int, default=500, help='evaluation period')
+        parser.add_argument('--gpu', type=int, default=0, help='employed gpu index')
+        parser.add_argument('--gpu_mem', type=float, default=0.96, help='gpu memory ratio to employ')
         parser.add_argument('--load_model', type='bool', default=False, help='do not use')
         parser.add_argument('--load_step', type=int, default=None, help='do not use')
         parser.add_argument('--load_path', type=str, default=None, help='specify which pre-trained model to be load')
 
         # @----------- training ----------------------------
         parser.add_argument('--max_epoch', type=int, default=100, help='max epoch number')
-        parser.add_argument('--num_steps', type=int, default=40000, help='max steps number')
-        parser.add_argument('--train_batch_size', type=int, default=32, help='train batch size')
+        parser.add_argument('--num_steps', type=int, default=400000, help='max steps number')
+        parser.add_argument('--train_batch_size', type=int, default=64, help='train batch size')
         parser.add_argument('--test_batch_size', type=int, default=100, help='test batch size')
         parser.add_argument('--optimizer', type=str, default='adadelta', help='chose an optimizer[adam|adadelta]')
         parser.add_argument('--learning_rate', type=float, default=0.5, help='init learning rate')
         parser.add_argument('--dy_lr', type='bool', default=False, help='if decay lr during training')
-        parser.add_argument('--lr_decay', type=float, default=False, help='learning rate decay')
-        parser.add_argument('--dropout', type=float, default=1.0, help='dropout keep prob')
+        parser.add_argument('--lr_decay', type=float, default=0.9, help='learning rate decay')
+        parser.add_argument('--dropout', type=float, default=0.75, help='dropout keep prob')
         parser.add_argument('--weight_decay', type=float, default=5e-5, help='weight decay factor/l2 decay factor')
         parser.add_argument('--var_decay', type=float, default=0.999, help='learning rate') # ema
         parser.add_argument('--decay', type=float, default=0.9, help='summary decay') # ema

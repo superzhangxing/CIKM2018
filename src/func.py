@@ -205,7 +205,7 @@ def dropout(x, keep_prob, is_train, noise_shape=None, seed=None, name=None):
         assert is_train is not None
         if keep_prob < 1.0:
             d = tf.nn.dropout(x,keep_prob,noise_shape=noise_shape,seed=seed)
-            out = tf.cond(is_train, lambda:d, lambda :a)
+            out = tf.cond(is_train, lambda:d, lambda :x)
             return out
         return x
 

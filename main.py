@@ -56,9 +56,13 @@ def train():
     # TODO
     graphHandler = GraphHandler(model)
     evaluator = Evaluator(model)
-    performRecorder = PerformRecorder(3)
+    performRecorder = PerformRecorder(5)
 
-    graph_config = tf.ConfigProto()
+    if cfg.gpu_mem < 1:
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=cfg.gpu_mem, allow_growth=True)
+    else:
+        gpu_options = tf.GPUOptions()
+    graph_config = tf.ConfigProto(gpu_options=gpu_options, allow_soft_placement=True)
     sess = tf.Session(config=graph_config)
     graphHandler.initialize(sess)
 
@@ -82,7 +86,7 @@ def train():
 
         # Occasional evaluation
         #if global_step > int(cfg.num_steps - 100000) and (global_step % (cfg.eval_period or steps_per_epoch) == 0):
-        if global_step % 100 == 0:  # debug
+        if global_step % (cfg.eval_period or steps_per_epoch) == 0:  # debug
             # ---- dev ----
             dev_loss, dev_accu =evaluator.get_evaluation(sess, dev_data_obj, global_step)
             _logger.add('==> for dev, loss: %.4f, accuracy: %.4f' % (dev_loss, dev_accu))
@@ -93,8 +97,9 @@ def train():
             )
             _logger.add('~~> for test, loss: %.4f, accuracy: %.4f' % (test_loss, test_accu))
 
-            model.update_learning_rate(dev_loss, cfg.lr_decay)
-            is_in_top, deleted_step = performRecorder.update_top_list(global_step, dev_accu, sess)
+            if global_step > int(cfg.num_steps - 100000):
+                model.update_learning_rate(dev_loss, cfg.lr_decay)
+                is_in_top, deleted_step = performRecorder.update_top_list(global_step, dev_accu, sess)
 
         this_epoch_time, mean_epoch_time = cfg.time_counter.update_data_round(data_round)
         if this_epoch_time is not None and mean_epoch_time is not None:
@@ -192,7 +197,11 @@ def infer():
     #evaluator = Evaluator(model)
     inference = Inference(model)
 
-    graph_config = tf.ConfigProto()
+    if cfg.gpu_mem < 1:
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=cfg.gpu_mem, allow_growth=True)
+    else:
+        gpu_options = tf.GPUOptions()
+    graph_config = tf.ConfigProto(gpu_options=gpu_options, allow_soft_placement=True)
     sess = tf.Session(config=graph_config)
     graphHandler.initialize(sess)
 
