@@ -16,17 +16,18 @@ class Evaluator(object):
         _logger.add()
         _logger.add('getting evaluation result for %s' % dataset_obj.data_type)
 
-        logits_list, loss_list, accu_list, accu_0_list, accu_1_list = [], [], [], [], []
+        logits_list, loss_list, accu_list, accu_0_list, accu_1_list, gold_label_list = [], [], [], [], [], []
 
         for sample_batch, _, _, _ in dataset_obj.generate_batch_sample_iter():
             feed_dict = self.model.get_feed_dict(sample_batch, 'dev')
-            logits, loss, accu, accu_0, accu_1 = sess.run([self.model.logits,
-                                           self.model.loss, self.model.accuracy, self.model.accuracy_0, self.model.accuracy_1], feed_dict=feed_dict)
+            logits, loss, accu, accu_0, accu_1, gold_label = sess.run([self.model.logits,self.model.loss, self.model.accuracy,
+                                                                       self.model.accuracy_0, self.model.accuracy_1, self.model.gold_label], feed_dict=feed_dict)
             logits_list.append(np.argmax(logits, -1))
             loss_list.append(loss)
             accu_list.append(accu)
             accu_0_list.append(accu_0)
             accu_1_list.append(accu_1)
+            gold_label_list.append(gold_label)
 
         logits_array = np.concatenate(logits_list, 0)
         loss_value = np.mean(loss_list)
@@ -36,6 +37,12 @@ class Evaluator(object):
         accu_0_value = np.mean(accu_0_array)
         accu_1_array = np.concatenate(accu_1_list, 0)
         accu_1_value = np.mean(accu_1_array)
+        gold_label_array = np.concatenate(gold_label_list, 0)
+        count_gold_label = gold_label_array.size
+        count_gold_label_0 = np.count_nonzero(gold_label_array)
+        count_gold_label_1 = count_gold_label - count_gold_label_0
+        accu_0_value = accu_0_value * count_gold_label / count_gold_label_0
+        accu_1_value = accu_1_value * count_gold_label / count_gold_label_1
 
         if global_step is not None:
             if dataset_obj.data_type == 'train':
