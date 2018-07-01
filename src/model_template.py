@@ -45,6 +45,8 @@ class ModelTemplate(object):
         self.logits = None
         self.loss = None
         self.accuracy = None  # evaluation need to be changed
+        self.accuracy_0 = None
+        self.accuracy_1 = None
         self.summary = None
         self.opt = None
         self.train_opt = None
