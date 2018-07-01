@@ -39,8 +39,8 @@ class Evaluator(object):
         accu_1_value = np.mean(accu_1_array)
         gold_label_array = np.concatenate(gold_label_list, 0)
         count_gold_label = gold_label_array.size
-        count_gold_label_0 = np.count_nonzero(gold_label_array)
-        count_gold_label_1 = count_gold_label - count_gold_label_0
+        count_gold_label_1 = np.count_nonzero(gold_label_array)
+        count_gold_label_0 = count_gold_label - count_gold_label_1
         accu_0_value = accu_0_value * count_gold_label / count_gold_label_0
         accu_1_value = accu_1_value * count_gold_label / count_gold_label_1
 
