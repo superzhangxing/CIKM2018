@@ -76,17 +76,26 @@ class ModelTemplate(object):
         return loss
 
     def build_accuracy(self):
+        predict_label = tf.cast(tf.argmax(self.logits,-1), tf.int32)
         correct = tf.equal(
-            tf.cast(tf.argmax(self.logits,-1), tf.int32),
+            predict_label,
             self.gold_label
         )
+        accuracy = tf.cast(correct,tf.float32)
 
-        return tf.cast(correct,tf.float32)
+        predict_label_0 = tf.equal(predict_label, 0)
+        predict_label_1 = tf.equal(predict_label, 1)
+        gold_label_0 = tf.equal(self.gold_label, 0)
+        gold_label_1 = tf.equal(self.gold_label, 1)
+        accuracy_0 = tf.cast(predict_label_0, tf.float32) * tf.cast(gold_label_0, tf.float32)
+        accuracy_1 = tf.cast(predict_label_1, tf.float32) * tf.cast(gold_label_1, tf.float32)
+
+        return accuracy, accuracy_0, accuracy_1
 
     def update_tensor_add_ema_and_opt(self):
         self.logits = self.build_network()
         self.loss = self.build_loss()
-        self.accuracy = self.build_accuracy()
+        self.accuracy, self.accuracy_0, self.accuracy_1 = self.build_accuracy()
 
         # -------------------------- ema --------------------------TODO
         if True:

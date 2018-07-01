@@ -88,14 +88,16 @@ def train():
         #if global_step > int(cfg.num_steps - 100000) and (global_step % (cfg.eval_period or steps_per_epoch) == 0):
         if global_step % (cfg.eval_period or steps_per_epoch) == 0:  # debug
             # ---- dev ----
-            dev_loss, dev_accu =evaluator.get_evaluation(sess, dev_data_obj, global_step)
-            _logger.add('==> for dev, loss: %.4f, accuracy: %.4f' % (dev_loss, dev_accu))
+            dev_loss, dev_accu, dev_accu_0, dev_accu_1 =evaluator.get_evaluation(sess, dev_data_obj, global_step)
+            _logger.add('==> for dev, loss: %.4f, accuracy: %.4f, accuracy_0: %.4f, accuracy_1: %.4f' %
+                        (dev_loss, dev_accu, dev_accu_0, dev_accu_1))
 
             # ---- test ----
-            test_loss, test_accu = evaluator.get_evaluation(
+            test_loss, test_accu, test_accu_0, test_accu_1 = evaluator.get_evaluation(
                 sess, test_data_obj, global_step
             )
-            _logger.add('~~> for test, loss: %.4f, accuracy: %.4f' % (test_loss, test_accu))
+            _logger.add('~~> for test, loss: %.4f, accuracy: %.4f, accuracy_0: %.4f, accuracy_1: %.4f' %
+                        (test_loss, test_accu, test_accu_0, test_accu_1))
 
             if global_step > cfg.update_lr_step:
                 model.update_learning_rate(dev_loss, cfg.lr_decay)
