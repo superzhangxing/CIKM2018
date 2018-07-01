@@ -219,10 +219,10 @@ class PreprocessData(object):
             with open(temp_dev_path, 'w', encoding='utf-8') as f:
                 f.writelines(sample_k_fold[i])
 
-    # upsampling , save as  k fold
+    # upsampling , save as  k fold, dev have repeative data in train
     def upsampling(self, k):
         _logger.add()
-        _logger.add('downsampling ...')
+        _logger.add('upsampling ...')
         sample_label = []
         sample_label_0 = []
         sample_label_1 = []
@@ -292,6 +292,77 @@ class PreprocessData(object):
             with open(temp_dev_path, 'w', encoding='utf-8') as f:
                 f.writelines(sample_k_fold[i])
 
+    # upsampling, apply upsampling only in train not in dev, dev don't have repeative data in train
+    def upsampling_1(self, k):
+        _logger.add()
+        _logger.add('upsampling ...')
+        sample_label = []
+        sample_label_0 = []
+        sample_label_1 = []
+        count_label_0 = 0
+        count_label_1 = 0
+        with open(self.en_train_file, 'r', encoding='utf-8') as f:
+            for id,line in enumerate(f):
+                if len(line) < 2:  # empty line
+                    continue
+                line_spl = line.split()
+                if line[-1] != '\n': # last line
+                    line += '\n'
+                if int(line_spl[-1]) == 0:
+                    count_label_0 += 1
+                    sample_label_0.append(line)
+                elif int(line_spl[-1]) == 1:
+                    count_label_1 += 1
+                    sample_label_1.append(line)
+
+        random.shuffle(sample_label_0)
+        random.shuffle(sample_label_1)
+
+
+        for i in range(k):
+            random.shuffle(sample_label_0)
+            random.shuffle(sample_label_1)
+            # k fold , generate train, and dev
+            dev_sample_label_0 = sample_label_0[:count_label_0//k]
+            train_sample_label_0 = sample_label_0[count_label_0//k:]
+            dev_sample_label_1 = sample_label_1[:count_label_1//k]
+            train_sample_label_1 = sample_label_1[count_label_1//k:]
+            dev_sample = dev_sample_label_0 + dev_sample_label_1
+            random.shuffle(dev_sample)
+
+            # upsampling for train dataset
+            train_count_label_0 = len(train_sample_label_0)
+            train_count_label_1 = len(train_sample_label_1)
+            train_sample = []
+            if train_count_label_0 < train_count_label_1:
+                rate = train_count_label_1 / train_count_label_0
+                train_sample = train_sample + train_sample_label_1
+                while(rate > 1):
+                    train_sample = train_sample + train_sample_label_0
+                    rate -= 1
+                if(rate > 0):
+                    train_sample = train_sample + train_sample_label_0[:int(rate*train_count_label_0)]
+            else:
+                rate = train_count_label_0 / train_count_label_1
+                train_sample = train_sample + train_sample_label_0
+                while(rate > 1):
+                    train_sample = train_sample + train_sample_label_1
+                    rate -= 1
+                if (rate >0):
+                    train_sample = train_sample + train_sample_label_1[:int(rate * train_count_label_1)]
+            random.shuffle(train_sample)
+
+            # write to file
+            train_name = 'train'
+            dev_name = 'dev'
+            temp_train_name = train_name + '_' + str(i+1)
+            temp_dev_name = dev_name + '_' + str(i+1)
+            temp_train_path = join(cfg.dataset_dir, temp_train_name)
+            temp_dev_path = join(cfg.dataset_dir, temp_dev_name)
+            with open(temp_train_path, 'w', encoding='utf-8') as f:
+                f.writelines(train_sample)
+            with open(temp_dev_path, 'w', encoding='utf-8') as f:
+                f.writelines(dev_sample)
 
 #use nltk toolkit to tokenize sentence
 def tokenize(text, language='en'):

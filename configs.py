@@ -27,13 +27,15 @@ class Configs(object):
 
         # @----------- training ----------------------------
         parser.add_argument('--max_epoch', type=int, default=100, help='max epoch number')
-        parser.add_argument('--num_steps', type=int, default=400000, help='max steps number')
+        parser.add_argument('--num_steps', type=int, default=100000, help='max steps number')
         parser.add_argument('--train_batch_size', type=int, default=64, help='train batch size')
         parser.add_argument('--test_batch_size', type=int, default=100, help='test batch size')
         parser.add_argument('--optimizer', type=str, default='adadelta', help='chose an optimizer[adam|adadelta]')
         parser.add_argument('--learning_rate', type=float, default=0.5, help='init learning rate')
         parser.add_argument('--dy_lr', type='bool', default=False, help='if decay lr during training')
         parser.add_argument('--lr_decay', type=float, default=0.9, help='learning rate decay')
+        parser.add_argument('--update_lr_step', type=int, default= 20000, help='update learning rate after steps')
+        parser.add_argument('--record_model_step', type=int, default = 10000, help='record model after steps')
         parser.add_argument('--dropout', type=float, default=0.75, help='dropout keep prob')
         parser.add_argument('--weight_decay', type=float, default=5e-5, help='weight decay factor/l2 decay factor')
         parser.add_argument('--var_decay', type=float, default=0.999, help='learning rate') # ema

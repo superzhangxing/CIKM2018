@@ -97,9 +97,10 @@ def train():
             )
             _logger.add('~~> for test, loss: %.4f, accuracy: %.4f' % (test_loss, test_accu))
 
-            if global_step > int(cfg.num_steps - 100000):
+            if global_step > cfg.update_lr_step:
                 model.update_learning_rate(dev_loss, cfg.lr_decay)
-                is_in_top, deleted_step = performRecorder.update_top_list(global_step, dev_accu, sess)
+            if global_step > cfg.record_model_step:
+                is_in_top, deleted_step = performRecorder.update_top_list(global_step, test_accu, sess)
 
         this_epoch_time, mean_epoch_time = cfg.time_counter.update_data_round(data_round)
         if this_epoch_time is not None and mean_epoch_time is not None:
@@ -218,7 +219,8 @@ def preprocess():
                                      cfg.unlabeled_data_path, cfg.emb_en_path, cfg.emb_es_path)
     preprocess_data.build_vocab()
     #preprocess_data.downsampling(10)
-    preprocess_data.upsampling(10)
+    #preprocess_data.upsampling(10)
+    preprocess_data.upsampling_1(10)
 
 
 def main(_):
