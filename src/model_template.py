@@ -207,7 +207,8 @@ class ModelTemplate(object):
         if data_type == 'infer':
             feed_dict = {
                 self.sent1_token: sent1_token_b,
-                self.sent2_token: sent2_token_b
+                self.sent2_token: sent2_token_b,
+                self.is_train: True if data_type == 'train' else False
             }
         else:
             # label
