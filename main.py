@@ -66,6 +66,13 @@ def train():
     sess = tf.Session(config=graph_config)
     graphHandler.initialize(sess)
 
+    # load model
+    if cfg.load_model and cfg.load_step:
+        saver = tf.train.Saver()
+        step = cfg.load_step
+        model_path = os.path.join(cfg.ckpt_dir, 'top_result_saver_step_%d.ckpt' % step)
+        saver.restore(sess, model_path)
+
 
     # begin training
     steps_per_epoch = int(math.ceil(1.0 * train_data_obj.sample_num / cfg.train_batch_size))
@@ -209,10 +216,10 @@ def infer():
     graphHandler.initialize(sess)
 
     saver = tf.train.Saver()
-    step = 6500
+    step = cfg.load_step
     model_path = os.path.join(cfg.ckpt_dir, 'top_result_saver_step_%d.ckpt' % step)
     saver.restore(sess, model_path)
-    logits_array, prob_array = inference.get_inference(sess, test_data_obj)
+    logits_array, prob_array = inference.get_inference(sess, infer_data_obj)
 
     inference.save_inference(prob_array, cfg.infer_result_path)
 
